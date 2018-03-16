@@ -1,0 +1,41 @@
+service: MFP-assignment
+
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+
+
+plugins:
+  - serverless-offline
+
+
+functions:
+  postChat:
+    handler: handler.postChat
+    memorySize: 3008
+    events:
+      - http:
+          path: chat
+          method: post
+          cors: true
+
+
+  getOneChat:
+    handler: handler.getOneChat
+    memorySize: 3008
+    events:
+      - http:
+          path: chat/{id}
+          method: get
+          cors: true
+
+
+  getUserChats:
+    handler: handler.getUserChats
+    memorySize: 3008
+    events:
+      - http:
+          path: chats/{username}
+          method: get
+          cors: true
