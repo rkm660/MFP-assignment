@@ -14,7 +14,7 @@ let ChatSchema = new mongoose.Schema({
         default: 60
     },
     expiration_date: {
-        type: String,
+        type: Number,
         required: true
     }
 });

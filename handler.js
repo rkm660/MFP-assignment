@@ -67,7 +67,7 @@ module.exports.getOneChat = (event, context, callback) => {
 
     db.once('open', () => {
         utils.retrieveChats({ _id: new ObjectId(params.id) }, {}, 1).then((chats) => {
-            callback(null, utils.createValidResponse(Object.assign({}, { username: chats[0]["username"], text: chats[0]["text"], expiration_date: chats[0]["expiration_date"] })));
+            callback(null, utils.createValidResponse(Object.assign({}, { username: chats[0]["username"], text: chats[0]["text"], expiration_date: utils.getFormattedDate(0,chats[0]["expiration_date"]) })));
             db.close();
             return;
         }).catch((error) => {
@@ -96,13 +96,12 @@ module.exports.getUserChats = (event, context, callback) => {
     const db = utils.initializeDatabaseConnection();
 
     db.once('open', () => {
-        utils.retrieveChats({ username: params.username }, {}).then((chats) => {
-            utils.updateChats({ username: params.username }, { expiration_date: utils.getFormattedDate(0) }).then((updatedChats) => {
+        utils.retrieveChats({ username: params.username, expiration_date : {$gt : Date.now()}}, {}).then((chats) => {
+            utils.updateChats({ username: params.username, expiration_date : {$gt : Date.now()}}, { expiration_date : Date.now()}).then((updatedChats) => {
                 callback(null, utils.createValidResponse(chats.map(chat => { return { id: chat['_id'], text: chat['text'] } })));
                 db.close();
                 return;
             }).catch((error) => {
-                console.log(error);
                 callback(null, utils.createErrorResponse(501, "Error updating chats."));
                 db.close();
                 return;

@@ -59,7 +59,7 @@ module.exports.initializeDatabaseConnection = () => {
 
 module.exports.createChat = (username, text, timeout) => {
     return new Promise(function(resolve, reject) {
-        let ChatObject = new Chat({ username: username, text: text, timeout: timeout, expiration_date: module.exports.getFormattedDate(timeout) });
+        let ChatObject = new Chat({ username: username, text: text, timeout: timeout, expiration_date: Date.now() + (1000 * timeout) });
         Chat.insertMany([ChatObject]).then((docs) => {
             resolve(docs[0]);
         }).catch((error) => {
@@ -103,7 +103,7 @@ module.exports.retrieveChats = (query, fields = {}, limit = null) => {
             q = q.limit(limit);
         }
         Chat.find(q).then((docs) => {
-            if (!docs || docs.length == 0) {
+            if (!docs) {
                 reject(new Error("Error retreiving chats."));
             } else {
                 resolve(docs);
@@ -136,8 +136,8 @@ module.exports.isValidObjectId = (string) => {
  * @return {string} 
  */
 
-module.exports.getFormattedDate = (timeout) => {
-    let d = new Date(Date.now() + timeout * 1000);
+module.exports.getFormattedDate = (timeout, timestamp = Date.now()) => {
+    let d = new Date(timestamp + timeout * 1000);
     let year = d.getFullYear().toString();
     let month = ((d.getMonth() + 1 < 10) ? '0' + (d.getMonth() + 1).toString() : (d.getMonth() + 1).toString());
     let date = (d.getDate() < 10 ? '0' + d.getDate().toString() : d.getDate().toString());
